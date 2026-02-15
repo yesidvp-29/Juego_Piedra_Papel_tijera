@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Juego Piedra Papel y Tijeras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="game-card">
+        <h1>Piedra, Papel o Tijera</h1>
+        <div class="buttons">
+            <button onclick="enviar('piedra')">👊</button>
+            <button onclick="enviar('papel')">📄</button>
+            <button onclick="enviar('tijera')">✂️</button>
+        </div>
+    <div id="pantalla">
+    <p id="res">ESPERANDO COMANDO...</p>
+    <p>LA IA_ELIGIO: <span id="ia-choice">---</span></p>
+    <button id="btn-reiniciar" onclick="reiniciar()">REINICIAR</button>
+    </div>
+    </div>
+
+    <script>
+      async function enviar(opcion) {
+    //  Envía la jugada al servidor Python
+    const res = await fetch('/jugar', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({eleccion: opcion})
+    });
+    const data = await res.json();
+
+    // 2. Actualiza los textos con la respuesta de la IA
+    document.getElementById('res').innerText = data.resultado;
+    document.getElementById('ia-choice').innerText = data.computadora.toUpperCase();
+
+    // 3. Bloquea la interfaz para forzar el reinicio
+    document.getElementById('btn-reiniciar').style.display = "inline-block";
+    document.getElementById('game-buttons').style.pointerEvents = "none";
+    document.getElementById('game-buttons').style.opacity = "0.3";
+}
+
+function reiniciar() {
+    // 1. Limpia los mensajes
+    document.getElementById('res').innerText = "ESPERANDO COMANDO...";
+    document.getElementById('ia-choice').innerText = "---";
+
+    // 2. Oculta el botón de reiniciar y desbloquea el juego
+    document.getElementById('btn-reiniciar').style.display = "none";
+    document.getElementById('game-buttons').style.pointerEvents = "auto";
+    document.getElementById('game-buttons').style.opacity = "1";
+}
+    </script>
+</body>
+</html>
